@@ -2,8 +2,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
 
 from profiles_api import serializers
+from profiles_api import models
+from profiles_api import permissions
 
 
 class HelloApiView(APIView):
@@ -95,3 +98,20 @@ class HelloViewSet(viewsets.ViewSet):
         """Handle removing an object"""
 
         return Response({'http_method': 'DELETE'})
+
+# Using ModelViewSet which is similar to ViewSet however it provides functionality to manage models
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """Handle creating and updating profiles"""
+
+    serializer_class = serializers.UserProfileSerializer
+
+    # if we declare serializer_class and queryset ModelViewSet automatically create the required methods
+    # which we need to create manually in case of ViewSet
+    queryset = models.UserProfile.objects.all()
+
+    # if we add authentication_classes still safe methods which we have allowed in permission_classes still be accessible
+    # which is GET in our case
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnProfile,)
+
+
